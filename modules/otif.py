@@ -235,33 +235,33 @@ def processar_otif(caminho_pedidos: str, caminho_faturamentos: str):
             f"OTIF_COMPLETO_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
         )
 
-    with pd.ExcelWriter(arquivo_xlsx, engine="xlsxwriter") as writer:
-        workbook  = writer.book
+        with pd.ExcelWriter(arquivo_xlsx, engine="xlsxwriter") as writer:
+            workbook  = writer.book
 
-        # Formato percentual com duas casas
-        percent_fmt = workbook.add_format({'num_format': '0.00%'})
+            # Formato percentual com duas casas
+            percent_fmt = workbook.add_format({'num_format': '0.00%'})
 
-        # Aba do gráfico
-        worksheet_graf = workbook.add_worksheet("Grafico_OTIF")
-        worksheet_graf.insert_image("B2", "grafico.png", {"image_data": img_data})
+            # Aba do gráfico
+            worksheet_graf = workbook.add_worksheet("Grafico_OTIF")
+            worksheet_graf.insert_image("B2", "grafico.png", {"image_data": img_data})
 
-        # Aba Ped_Fatur
-        ped_fatur.to_excel(writer, sheet_name="Ped_Fatur", index=False)
+            # Aba Ped_Fatur
+            ped_fatur.to_excel(writer, sheet_name="Ped_Fatur", index=False)
 
-        # Aba Nivel_Servico
-        consol_fase2.to_excel(writer, sheet_name="Nivel_Servico", index=False)
-        ws_ns = writer.sheets["Nivel_Servico"]
+            # Aba Nivel_Servico
+            consol_fase2.to_excel(writer, sheet_name="Nivel_Servico", index=False)
+            ws_ns = writer.sheets["Nivel_Servico"]
 
-        # Detecta automaticamente a coluna percentual
-        for col_idx, col_name in enumerate(consol_fase2.columns):
-            if col_name.lower() == "nivel_servico_perct":
-                ws_ns.set_column(col_idx, col_idx, 12, percent_fmt)
+            # Detecta automaticamente a coluna percentual
+            for col_idx, col_name in enumerate(consol_fase2.columns):
+                if col_name.lower() == "nivel_servico_perct":
+                    ws_ns.set_column(col_idx, col_idx, 12, percent_fmt)
 
-        # Aba Backorder_Detalhes
-        fase3.to_excel(writer, sheet_name="Backorder_Detalhes", index=False)
+            # Aba Backorder_Detalhes
+            fase3.to_excel(writer, sheet_name="Backorder_Detalhes", index=False)
 
-        # Aba Backorder_Resumo
-        fase4.to_excel(writer, sheet_name="Backorder_Resumo", index=False)
+            # Aba Backorder_Resumo
+            fase4.to_excel(writer, sheet_name="Backorder_Resumo", index=False)
 
 
         log(f"Excel gerado: {arquivo_xlsx}")
