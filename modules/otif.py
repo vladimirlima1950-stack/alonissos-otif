@@ -262,6 +262,15 @@ def processar_otif(caminho_pedidos: str, caminho_faturamentos: str):
 
             # Aba Backorder_Resumo
             fase4.to_excel(writer, sheet_name="Backorder_Resumo", index=False)
+            ws_br = writer.sheets["Backorder_Resumo"]
+
+            # Formato numérico com duas casas decimais
+            num_fmt = workbook.add_format({'num_format': '0.00'})
+
+            # Detecta automaticamente a coluna idade_backorder
+            for col_idx, col_name in enumerate(fase4.columns):
+            if col_name.lower() == "idade_backorder":
+                ws_br.set_column(col_idx, col_idx, 12, num_fmt)     
 
 
         log(f"Excel gerado: {arquivo_xlsx}")
