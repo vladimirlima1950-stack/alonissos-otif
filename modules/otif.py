@@ -269,8 +269,8 @@ def processar_otif(caminho_pedidos: str, caminho_faturamentos: str):
 
             # Detecta automaticamente a coluna idade_backorder
             for col_idx, col_name in enumerate(fase4.columns):
-            if col_name.lower() == "idade_backorder":
-                ws_br.set_column(col_idx, col_idx, 12, num_fmt)     
+                if col_name.lower() == "idade_backorder":
+                    ws_br.set_column(col_idx, col_idx, 12, num_fmt)     
 
 
         log(f"Excel gerado: {arquivo_xlsx}")
