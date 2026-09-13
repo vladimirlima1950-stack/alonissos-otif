@@ -104,11 +104,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             CURLOPT_RETURNTRANSFER => false,
             CURLOPT_TIMEOUT        => 5
         ]);
-        curl_exec($curl);
-        curl_close($curl);
+		
+		
+        if ($pedidosOK && $faturamentosOK) {
 
-        $mensagens[] = "Processamento iniciado. Você receberá o resultado por e‑mail.";
-        $processado  = true;
+			// Dispara o processamento sem esperar resposta
+			$curl = curl_init();
+			curl_setopt_array($curl, [
+				CURLOPT_URL            => "$railway_base/processar_otif?email=$emailCliente",
+				CURLOPT_RETURNTRANSFER => false,   // não espera resposta
+				CURLOPT_TIMEOUT        => 2        // dispara e sai
+		]);
+    curl_exec($curl);
+    curl_close($curl);
+
+    $mensagens[] = "Processamento iniciado. Você receberá o resultado por e‑mail.";
+    $processado  = true;
+
+} else {
+    $mensagens[] = "Processamento OTIF não foi iniciado porque um ou ambos os arquivos apresentaram erro.";
+}
+
 
     } else {
         $mensagens[] = "Processamento OTIF não foi iniciado porque um ou ambos os arquivos apresentaram erro.";

@@ -304,7 +304,40 @@ def enviar_email_otif(arquivo_xlsx: str, email_destino: str):
         "from": "MUPE Consultoria <noreply@mupeconsult.com>",
         "to": email_destino,
         "subject": "Relatório OTIF",
-        "html": "<p>Segue em anexo o relatório OTIF gerado automaticamente.</p>",
+
+
+        "html": """
+        <p style='font-family: Arial; font-size: 15px; color: #333;'>
+        Prezado(a),
+        </p>
+
+        <p style='font-family: Arial; font-size: 15px; color: #333;'>
+        O relatório OTIF referente aos dados enviados foi processado com sucesso.
+        </p>
+
+        <p style='font-family: Arial; font-size: 15px; color: #333;'>
+        O arquivo em anexo contém:
+        </p>
+
+        <ul style='font-family: Arial; font-size: 15px; color: #333;'>
+            <li>Nível de serviço por mês</li>
+            <li>Backorder detalhado</li>
+            <li>Backorder consolidado</li>
+            <li>Gráfico de desempenho OTIF</li>
+        </ul>
+
+        <p style='font-family: Arial; font-size: 15px; color: #333;'>
+        Caso tenha dúvidas sobre qualquer indicador, estamos à disposição.
+        </p>
+
+        <p style='font-family: Arial; font-size: 15px; color: #333;'>
+        Atenciosamente,<br>
+        <strong>MUPE Consultoria</strong>
+        </p>
+        """
+
+
+
         "attachments": [
             {
                 "filename": os.path.basename(arquivo_xlsx),
