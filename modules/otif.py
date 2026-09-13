@@ -182,7 +182,7 @@ def processar_otif(caminho_pedidos: str, caminho_faturamentos: str):
         ).reset_index()
 
         consol_fase2["nivel_servico_perct"] = (
-            consol_fase2["linhas_atendidas"] / consol_fase2["total_linhas"] * 100
+            consol_fase2["linhas_atendidas"] / consol_fase2["total_linhas"] * 1.0
         )
 
         log("Calculando backorder...")
