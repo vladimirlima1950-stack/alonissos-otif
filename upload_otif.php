@@ -12,7 +12,7 @@ if (!isset($_SESSION['logado']) || $_SESSION['logado'] !== true) {
 
 $cliente           = $_SESSION['usuario'] ?? 'Desconhecido';   // usado internamente
 $emailCliente      = $_SESSION['email']   ?? '';
-$nomeClienteTela   = $_SESSION['nome_cliente'] ?? $cliente;     // usado apenas na tela
+$nomeClienteTela   = $_SESSION['nome'] ?? $cliente;     // usado apenas na tela
 
 $railway_base = "https://cozy-vision-production-6526.up.railway.app";
 

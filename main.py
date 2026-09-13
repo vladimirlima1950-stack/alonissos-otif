@@ -129,7 +129,6 @@ async def upload_faturamentos(file: UploadFile = File(...)):
             content={"status": "erro", "mensagem": f"Falha ao receber faturamentos: {str(e)}"}
         )
 
-
 @app.get("/processar_otif")
 def processar_otif_api(email: str):
     global pedidos_path, faturamentos_path
@@ -140,19 +139,18 @@ def processar_otif_api(email: str):
             content={"status": "erro", "mensagem": "Envie pedidos e faturamentos antes de processar."}
         )
 
-    try:
-        arquivo = processar_otif(pedidos_path, faturamentos_path)
+    import threading
 
-        enviar_email_otif(arquivo, email)
+    def tarefa():
+        try:
+            arquivo = processar_otif(pedidos_path, faturamentos_path)
+            enviar_email_otif(arquivo, email)
+        except Exception as e:
+            log(f"Erro no processamento em background: {e}")
 
-        return {
-            "status": "processado",
-            "mensagem": "Processamento concluído e enviado por e-mail.",
-            "arquivo_xlsx": str(arquivo)
-        }
+    threading.Thread(target=tarefa).start()
 
-    except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={"status": "erro", "mensagem": f"Falha ao processar OTIF: {str(e)}"}
-        )
+    return {
+        "status": "ok",
+        "mensagem": "Processamento iniciado. Você receberá o relatório por e‑mail."
+    }
