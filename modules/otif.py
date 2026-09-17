@@ -303,7 +303,7 @@ def enviar_email_otif(arquivo_xlsx: str, email_destino: str):
     payload = {
         "from": "MUPE Consultoria <noreply@mupeconsult.com>",
         "to": email_destino,
-        "subject": "Relatório OTIF",
+        "subject": "Relatório Nível de Serviço aos Clientes - OTIF",
 
 
         "html": """
@@ -312,7 +312,7 @@ def enviar_email_otif(arquivo_xlsx: str, email_destino: str):
         </p>
 
         <p style='font-family: Arial; font-size: 15px; color: #333;'>
-        O relatório OTIF referente aos dados enviados foi processado com sucesso.
+        O relatório Nível de Serviço aos Clientes - OTIF referente aos dados enviados foi processado com sucesso.
         </p>
 
         <p style='font-family: Arial; font-size: 15px; color: #333;'>
