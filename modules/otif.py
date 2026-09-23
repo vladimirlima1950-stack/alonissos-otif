@@ -299,12 +299,13 @@ def enviar_email_otif(arquivo_xlsx: str, email_destino: str):
         arquivo_bytes = f.read()
 
     arquivo_base64 = base64.b64encode(arquivo_bytes).decode("utf-8")
+    primeiro_nome = contato.split()[0] if contato else "Cliente"
 
     payload = {
         "from": "MUPE Consultoria <noreply@mupeconsult.com>",
         "to": email_destino,
         "subject": "Relatório Nível de Serviço aos Clientes - OTIF",
-
+        
 
         "html": """
             <p style='font-family: Arial; font-size: 15px; color: #333;'>
@@ -316,7 +317,7 @@ def enviar_email_otif(arquivo_xlsx: str, email_destino: str):
             </p>
             
             <p style='font-family: Arial; font-size: 15px; color: #333;'>
-            As planilhas anexas permitem avaliar o nível de atendimento aos clientes ao longo do período analisado.
+            A planilha anexa permite avaliar o nível de atendimento aos clientes ao longo do período analisado.
             </p>
             
             <p style='font-family: Arial; font-size: 15px; color: #333;'>
