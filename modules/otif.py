@@ -306,7 +306,7 @@ def enviar_email_otif(
         arquivo_bytes = f.read()
 
     arquivo_base64 = base64.b64encode(arquivo_bytes).decode("utf-8")
-    primeiro_nome = contato.split()[0] if contato else "Cliente"
+    primeiro_nome = nome.split()[0] if nome else "Cliente"
 
     payload = {
         "from": "MUPE Consultoria <noreply@mupeconsult.com>",
