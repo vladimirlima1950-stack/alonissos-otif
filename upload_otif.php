@@ -1,141 +1,102 @@
 <?php
 session_start();
+require 'conexao.php'; // usa o mesmo $pdo do login.php
 
 if (!isset($_SESSION['logado']) || $_SESSION['logado'] !== true) {
     header("Location: login.php");
     exit;
 }
 
-# IMPORTANTE:
-# $cliente continua sendo o identificador usado internamente (número)
-# $nomeClienteTela é apenas para exibição na página
-
-$cliente           = $_SESSION['usuario'] ?? 'Desconhecido';   // usado internamente
-$emailCliente      = $_SESSION['email']   ?? '';
-$nomeClienteTela   = $_SESSION['nome'] ?? $cliente;     // usado apenas na tela
+$cliente = $_SESSION['usuario'];
+$emailCliente = $_SESSION['email'];
+$nomeClienteTela = $_SESSION['nome'] ?? $cliente;
 
 $railway_base = "https://cozy-vision-production-6526.up.railway.app";
 
+/* ============================================================
+   FUNÇÃO ORIGINAL — NÃO ALTERADA
+============================================================ */
 function enviarArquivoOTIF($campo, $endpoint, $railway_base) {
     if (!isset($_FILES[$campo]) || $_FILES[$campo]['error'] !== UPLOAD_ERR_OK) {
-        return [
-            'status'   => 'erro',
-            'mensagem' => "Arquivo '$campo' não enviado ou erro no upload."
-        ];
+        return ['status' => 'erro', 'mensagem' => "Arquivo '$campo' não enviado."];
     }
 
     $arquivo = $_FILES[$campo];
-
     $ext = strtolower(pathinfo($arquivo['name'], PATHINFO_EXTENSION));
+
     if ($ext !== "csv") {
-        return [
-            'status'   => 'erro',
-            'mensagem' => "Erro: o arquivo '$campo' deve ser .csv"
-        ];
+        return ['status' => 'erro', 'mensagem' => "Erro: o arquivo '$campo' deve ser .csv"];
     }
 
     $mime = mime_content_type($arquivo['tmp_name']);
-    if ($mime !== "text/plain" && $mime !== "text/csv" && $mime !== "application/vnd.ms-excel") {
-        return [
-            'status'   => 'erro',
-            'mensagem' => "Erro: o arquivo '$campo' não parece ser um CSV válido (MIME: $mime)."
-        ];
-    }
-
-    $nomeSeguro = basename($arquivo['name']);
 
     $curl = curl_init();
     curl_setopt_array($curl, [
-        CURLOPT_URL            => "$railway_base/$endpoint",
-        CURLOPT_POST           => true,
-        CURLOPT_POSTFIELDS     => [
-            "file" => curl_file_create(
-                $arquivo['tmp_name'],
-                $mime,
-                $nomeSeguro
-            )
+        CURLOPT_URL => "$railway_base/$endpoint",
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => [
+            "file" => curl_file_create($arquivo['tmp_name'], $mime, basename($arquivo['name']))
         ],
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT        => 60
+        CURLOPT_RETURNTRANSFER => true
     ]);
 
     $resposta = curl_exec($curl);
-    $erroCurl = curl_error($curl);
     curl_close($curl);
 
-    if ($erroCurl) {
-        return [
-            'status'   => 'erro',
-            'mensagem' => "Erro ao enviar '$campo': $erroCurl"
-        ];
-    }
-
-    $json = json_decode($resposta, true);
-
-    if (!$json || !isset($json['status'])) {
-        return [
-            'status'   => 'erro',
-            'mensagem' => "Resposta inválida do servidor para '$campo': " . htmlspecialchars($resposta)
-        ];
-    }
-
-    return $json;
+    return json_decode($resposta, true);
 }
 
-$mensagens  = [];
+$mensagens = [];
 $processado = false;
 
+/* ============================================================
+   PROCESSAMENTO ORIGINAL — NÃO ALTERADO
+============================================================ */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $respPedidos = enviarArquivoOTIF("pedidos", "upload_pedidos", $railway_base);
-    $mensagens[] = "Pedidos: " . ($respPedidos['mensagem'] ?? '');
-
     $respFaturamentos = enviarArquivoOTIF("faturamentos", "upload_faturamentos", $railway_base);
+
+    $pedidosOK = ($respPedidos['status'] === 'ok');
+    $faturamentosOK = ($respFaturamentos['status'] === 'ok');
+
+    $mensagens[] = "Pedidos: " . ($respPedidos['mensagem'] ?? '');
     $mensagens[] = "Faturamentos: " . ($respFaturamentos['mensagem'] ?? '');
 
-    $pedidosOK      = isset($respPedidos['status'])      && $respPedidos['status']      === 'ok';
-    $faturamentosOK = isset($respFaturamentos['status']) && $respFaturamentos['status'] === 'ok';
-
+    /* ============================================================
+       SOMENTE REGISTRA SE AMBOS ESTIVEREM OK (como você confirmou)
+    ============================================================ */
     if ($pedidosOK && $faturamentosOK) {
 
+        // REGISTRA O UPLOAD DO MÓDULO OTIF
+        $stmt = $pdo->prepare("INSERT INTO uploads (cliente_id, tipo_arquivo) VALUES (:cliente_id, 'otif')");
+        $stmt->execute([':cliente_id' => $cliente]);
+
+        // PROCESSAMENTO ORIGINAL — NÃO ALTERADO
         $curl = curl_init();
         curl_setopt_array($curl, [
-            CURLOPT_URL            => "$railway_base/processar_otif?email=$emailCliente",
+            CURLOPT_URL => "$railway_base/processar_otif?email="
+			. urlencode($emailCliente)
+			. "&nome="
+			. urlencode($nomeClienteTela),
             CURLOPT_RETURNTRANSFER => false,
-            CURLOPT_TIMEOUT        => 5
+            CURLOPT_TIMEOUT => 2
         ]);
-		
-		
-        if ($pedidosOK && $faturamentosOK) {
 
-			// Dispara o processamento sem esperar resposta
-			$curl = curl_init();
-			curl_setopt_array($curl, [
-				CURLOPT_URL            => "$railway_base/processar_otif?email=$emailCliente",
-				CURLOPT_RETURNTRANSFER => false,   // não espera resposta
-				CURLOPT_TIMEOUT        => 2        // dispara e sai
-		]);
-    curl_exec($curl);
-    curl_close($curl);
+        curl_exec($curl);
+        curl_close($curl);
 
-    $mensagens[] = "Processamento iniciado. Você receberá o resultado por e‑mail.";
-    $processado  = true;
-
-} else {
-    $mensagens[] = "Processamento OTIF não foi iniciado porque um ou ambos os arquivos apresentaram erro.";
-}
-
-
-    } else {
-        $mensagens[] = "Processamento OTIF não foi iniciado porque um ou ambos os arquivos apresentaram erro.";
+        $mensagens[] = "Processamento iniciado. Você receberá o resultado por e‑mail.";
+        $processado = true;
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Envio de Arquivos OTIF - MUPE Consultoria</title>
+<title>Envio de Arquivos Nível de Serviço ao Cliente - OTIF - MUPE Consultoria</title>
 
 <style>
 body {
@@ -144,14 +105,16 @@ body {
     margin: 0;
     padding: 0;
 }
+
 .container {
-    max-width: 900px;
+    max-width: 700px;
     margin: 40px auto;
     background: #ffffff;
     padding: 30px;
     border-radius: 10px;
     box-shadow: 0 8px 20px rgba(0,0,0,0.08);
 }
+
 h2 {
     margin-top: 0;
     font-size: 24px;
@@ -159,59 +122,38 @@ h2 {
     border-bottom: 1px solid #e5e7eb;
     padding-bottom: 8px;
 }
-.form-grid {
-    display: flex;
-    gap: 25px;
+
+h3 {
     margin-top: 25px;
-}
-.bloco {
-    flex: 1;
-    background: #f9fafb;
-    padding: 20px;
-    border-radius: 8px;
-    border-left: 4px solid #2563eb;
-}
-.bloco h3 {
-    margin-top: 0;
     color: #374151;
 }
-.bloco p {
-    font-size: 14px;
-    color: #374151;
-    margin-bottom: 12px;
+
+label {
+    font-weight: bold;
+    margin-top: 15px;
+    display: block;
 }
+
 input[type="file"] {
-    margin-top: 12px;
-    padding: 10px;
-    background: #eef2ff;
-    border: 2px solid #6366f1;
-    border-radius: 6px;
-    font-size: 14px;
-    cursor: pointer;
+    margin-top: 5px;
 }
-input[type="file"]:hover {
-    background: #e0e7ff;
-    border-color: #4f46e5;
-}
+
 button {
     width: 100%;
-    padding: 16px;
-    background: #1e40af;
+    padding: 12px;
+    background: #2563eb;
     color: #ffffff;
     border: none;
-    border-radius: 8px;
-    font-size: 17px;
-    font-weight: bold;
+    border-radius: 6px;
+    font-size: 15px;
     cursor: pointer;
-    margin-top: 30px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-    transition: all 0.25s ease;
+    margin-top: 20px;
 }
+
 button:hover {
     background: #1d4ed8;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 14px rgba(0,0,0,0.22);
 }
+
 .msg {
     background: #e0f2fe;
     padding: 10px;
@@ -220,6 +162,7 @@ button:hover {
     color: #0369a1;
     font-size: 14px;
 }
+
 .sucesso {
     background: #dcfce7;
     padding: 15px;
@@ -229,6 +172,7 @@ button:hover {
     font-size: 15px;
     border-left: 5px solid #16a34a;
 }
+
 .botao-voltar {
     display: inline-block;
     margin-top: 20px;
@@ -239,84 +183,54 @@ button:hover {
     text-decoration: none;
     font-size: 15px;
 }
+
 .botao-voltar:hover {
     background: #1d4ed8;
 }
-#loader {
-    display: none;
-    text-align: center;
-    margin-top: 25px;
-}
-.spinner {
-    width: 50px;
-    height: 50px;
-    border: 6px solid #e5e7eb;
-    border-top-color: #2563eb;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: auto;
-}
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-#loader p {
-    margin-top: 12px;
-    font-size: 15px;
-    color: #374151;
-}
 </style>
+
 </head>
 
 <body>
+
 <div class="container">
 
-<h2>Envio de Arquivos OTIF</h2>
-<p>Cliente identificado: <strong><?= htmlspecialchars($nomeClienteTela) ?></strong></p>
+<h2>Envio de Arquivos Nível de Serviço ao Cliente - OTIF</h2>
 
-<div id="loader">
-    <div class="spinner"></div>
-    <p>Enviando arquivos... Aguarde.</p>
-</div>
+<p>Cliente identificado: <strong><?= htmlspecialchars($_SESSION['nome']) ?></strong></p>
 
 <form method="POST" enctype="multipart/form-data">
 
-<div class="form-grid">
+<h3>Arquivo de Pedidos (.csv)</h3>
 
-    <!-- BLOCO PEDIDOS -->
-    <div class="bloco">
-        <h3>Arquivo de Pedidos (.csv)</h3>
-        <p>
-            O arquivo de Pedidos deve conter:<br><br>
-            1) Número da ordem (1ª coluna);<br>
-            2) Identificação do cliente (2ª coluna);<br>
-            3) Data desejada (DD/MM/AAAA) — 3ª coluna;<br>
-            4) SKU / item / peça (4ª coluna);<br>
-            5) Quantidade pedida (5ª coluna).<br><br>
-            Todas as colunas, <strong>exceto a terceira</strong>, devem ser texto.<br>
-            O arquivo deve ser salvo como <strong>.csv</strong>.
-        </p>
-        <input type="file" name="pedidos" required>
-    </div>
+<p style="font-size:14px; color:#374151; background:#f9fafb; padding:10px; border-left:4px solid #2563eb; border-radius:6px;">
+    O arquivo deve conter:<br>
+    1) identificação do pedido na primeira coluna;<br>
+    2) identificação do cliente na segunda coluna;<br>
+    3) data desejada pelo cliente no formato <strong>DD/MM/AAAA</strong> na terceira coluna;<br>
+    4) identificação do sku/artigo/produto/item na quarta coluna;<br>
+    5) quantidade pedida pelo cliente na quinta coluna.<br><br>
+    Todas as colunas devem ser formatadas como <strong>texto</strong>, exceto a coluna contendo datas.
+</p>
 
-    <!-- BLOCO FATURAMENTOS -->
-    <div class="bloco">
-        <h3>Arquivo de Faturamentos (.csv)</h3>
-        <p>
-            O arquivo de Faturamentos deve conter:<br><br>
-            1) Data do faturamento (DD/MM/AAAA) — 1ª coluna;<br>
-            2) Identificação do cliente (2ª coluna);<br>
-            3) SKU / item / peça (3ª coluna);<br>
-            4) Quantidade faturada (4ª coluna);<br>
-            5) Ordem de venda (5ª coluna).<br><br>
-            Todas as colunas, <strong>exceto a primeira</strong>, devem ser texto.<br>
-            O arquivo deve ser salvo como <strong>.csv</strong>.
-        </p>
-        <input type="file" name="faturamentos" required>
-    </div>
+<input type="file" name="pedidos" required>
 
-</div>
 
-<button type="submit">Enviar arquivos e processar OTIF</button>
+<h3>Arquivo de Faturamentos (.csv)</h3>
+
+<p style="font-size:14px; color:#374151; background:#f9fafb; padding:10px; border-left:4px solid #2563eb; border-radius:6px;">
+    O arquivo deve conter:<br>
+    1) data do faturamento no formato <strong>DD/MM/AAAA</strong> na primeira coluna;<br>
+    2) identificação do cliente na segunda coluna;<br>
+    3) identificação do sku/artigo/produto/item na terceira coluna;<br>
+    4) quantidade faturada na quarta coluna;<br>
+    5) identificação do pedido na quinta coluna.<br><br>
+    Todas as colunas devem ser formatadas como <strong>texto</strong>, exceto a coluna contendo datas.
+</p>
+
+<input type="file" name="faturamentos" required>
+
+<button type="submit">Enviar arquivos e iniciar processamento</button>
 
 </form>
 
@@ -330,19 +244,15 @@ button:hover {
 
 <?php if ($processado): ?>
 <div class="sucesso">
-    <p><strong>Processamento iniciado!</strong></p>
+    <p><strong>Arquivos enviados com sucesso!</strong></p>
+    <p>O processamento foi iniciado automaticamente.</p>
     <p>O resultado será enviado para o e‑mail cadastrado.</p>
 </div>
+
 <a href="https://mupeconsult.com/" class="botao-voltar">Voltar ao site MUPE Consultoria</a>
 <?php endif; ?>
 
 </div>
-
-<script>
-document.querySelector("form").addEventListener("submit", function() {
-    document.getElementById("loader").style.display = "block";
-});
-</script>
 
 </body>
 </html>

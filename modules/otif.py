@@ -287,7 +287,14 @@ def processar_otif(caminho_pedidos: str, caminho_faturamentos: str):
 # 5) Envio de e-mail via RESEND
 # ============================================================
 
-def enviar_email_otif(arquivo_xlsx: str, email_destino: str):
+def enviar_email_otif(
+        arquivo_xlsx: str,
+        email_destino: str,
+        nome: str = "Cliente"
+):
+
+
+        
     log(f"Enviando e-mail OTIF para {email_destino} via Resend...")
 
     RESEND_API_KEY = os.getenv("RESEND_API_KEY")
@@ -309,7 +316,7 @@ def enviar_email_otif(arquivo_xlsx: str, email_destino: str):
 
         "html": """
             <p style='font-family: Arial; font-size: 15px; color: #333;'>
-            Prezado(a),
+            Olá, {primeiro_nome}!
             </p>
             
             <p style='font-family: Arial; font-size: 15px; color: #333;'>

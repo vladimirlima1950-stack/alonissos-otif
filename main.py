@@ -130,7 +130,10 @@ async def upload_faturamentos(file: UploadFile = File(...)):
         )
 
 @app.get("/processar_otif")
-def processar_otif_api(email: str):
+def processar_otif_api(
+    email: str,
+    nome: str = "Cliente"
+):
     global pedidos_path, faturamentos_path
 
     if not pedidos_path or not faturamentos_path:
@@ -144,7 +147,13 @@ def processar_otif_api(email: str):
     def tarefa():
         try:
             arquivo = processar_otif(pedidos_path, faturamentos_path)
-            enviar_email_otif(arquivo, email)
+            enviar_email_otif(
+                arquivo,
+                email,
+                nome
+            )
+
+
         except Exception as e:
             log(f"Erro no processamento em background: {e}")
 
