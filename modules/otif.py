@@ -314,7 +314,7 @@ def enviar_email_otif(
         "subject": "Relatório Nível de Serviço aos Clientes - OTIF",
         
 
-        "html": """
+        "html": f"""
             <p style='font-family: Arial; font-size: 15px; color: #333;'>
             Olá, {primeiro_nome}!
             </p>
