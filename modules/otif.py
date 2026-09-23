@@ -307,35 +307,52 @@ def enviar_email_otif(arquivo_xlsx: str, email_destino: str):
 
 
         "html": """
-        <p style='font-family: Arial; font-size: 15px; color: #333;'>
-        Prezado(a),
-        </p>
-
-        <p style='font-family: Arial; font-size: 15px; color: #333;'>
-        O relatório Nível de Serviço aos Clientes - OTIF referente aos dados enviados foi processado com sucesso.
-        </p>
-
-        <p style='font-family: Arial; font-size: 15px; color: #333;'>
-        O arquivo em anexo contém:
-        </p>
-
-        <ul style='font-family: Arial; font-size: 15px; color: #333;'>
-            <li>Nível de serviço por mês</li>
-            <li>Backorder detalhado</li>
-            <li>Backorder consolidado</li>
-            <li>Gráfico de desempenho OTIF</li>
-        </ul>
-
-        <p style='font-family: Arial; font-size: 15px; color: #333;'>
-        Caso tenha dúvidas sobre qualquer indicador, estamos à disposição.
-        </p>
-
-        <p style='font-family: Arial; font-size: 15px; color: #333;'>
-        Atenciosamente,<br>
-        <strong>MUPE Consultoria</strong>
-        </p>
-        """,
-
+            <p style='font-family: Arial; font-size: 15px; color: #333;'>
+            Prezado(a),
+            </p>
+            
+            <p style='font-family: Arial; font-size: 15px; color: #333;'>
+            O módulo <strong>Avaliação do Nível de Serviço</strong> foi processado com sucesso.
+            </p>
+            
+            <p style='font-family: Arial; font-size: 15px; color: #333;'>
+            As planilhas anexas permitem avaliar o nível de atendimento aos clientes ao longo do período analisado.
+            </p>
+            
+            <p style='font-family: Arial; font-size: 15px; color: #333;'>
+            A análise do nível de serviço mostra qual percentual da demanda foi atendido integralmente e permite identificar períodos de melhora ou deterioração do desempenho operacional.
+            </p>
+            
+            <p style='font-family: Arial; font-size: 15px; color: #333;'>
+            O gráfico de evolução do nível de serviço facilita a identificação de tendências ao longo do tempo e ajuda a verificar se as ações adotadas pela empresa estão produzindo os resultados esperados.
+            </p>
+            
+            <p style='font-family: Arial; font-size: 15px; color: #333;'>
+            O detalhamento dos back orders permite identificar os itens responsáveis pelos pedidos pendentes, auxiliando na priorização das compras, na redução das rupturas e na recuperação das vendas perdidas.
+            </p>
+            
+            <p style='font-family: Arial; font-size: 15px; color: #333;'>
+            A análise da idade média dos back orders ajuda a medir há quanto tempo os clientes aguardam atendimento, indicando situações que podem comprometer a satisfação dos clientes e a fidelização.
+            </p>
+            
+            <p style='font-family: Arial; font-size: 15px; color: #333;'>
+            <strong>Por onde começar?</strong>
+            </p>
+            
+            <ol style='font-family: Arial; font-size: 15px; color: #333;'>
+            <li>Verifique o nível de serviço médio do período e compare-o com a meta estabelecida pela empresa.</li>
+            <li>Analise os meses com pior desempenho para identificar possíveis causas das rupturas.</li>
+            <li>Identifique os itens que mais geraram back orders e avalie se os estoques de segurança são adequados.</li>
+            <li>Priorize o atendimento dos back orders mais antigos para minimizar impactos no relacionamento com os clientes.</li>
+            <li>Utilize os resultados deste módulo em conjunto com as análises de estoques, compras e fornecedores para identificar as principais causas das perdas de vendas.</li>
+            <li>Acompanhe a evolução do nível de serviço ao longo do tempo para verificar se as ações corretivas estão produzindo resultados efetivos.</li>
+            </ol>
+            
+            <p style='font-family: Arial; font-size: 15px; color: #333;'>
+            Atenciosamente,<br>
+            <strong>MUPE Consultoria</strong>
+            </p>
+            """
 
 
         "attachments": [
