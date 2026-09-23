@@ -353,6 +353,7 @@ def enviar_email_otif(arquivo_xlsx: str, email_destino: str):
             <strong>MUPE Consultoria</strong>
             </p>
             """
+            ,
 
 
         "attachments": [
