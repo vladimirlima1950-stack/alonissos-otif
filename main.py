@@ -55,7 +55,10 @@ async def upload_pedidos(file: UploadFile = File(...)):
     global pedidos_path
 
     try:
-        pedidos_path = os.path.join(UPLOAD_DIR, "pedidos.csv")
+        pedidos_path = os.path.join(
+            UPLOAD_DIR,
+            file.filename
+        )
 
         contents = await file.read()
         if len(contents) < 10:
@@ -95,7 +98,10 @@ async def upload_faturamentos(file: UploadFile = File(...)):
     global faturamentos_path
 
     try:
-        faturamentos_path = os.path.join(UPLOAD_DIR, "faturamentos.csv")
+        faturamentos_path = os.path.join(
+            UPLOAD_DIR,
+            file.filename
+        )
 
         contents = await file.read()
         if len(contents) < 10:
