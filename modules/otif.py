@@ -93,7 +93,7 @@ def processar_otif(caminho_pedidos: str, caminho_faturamentos: str):
         log("Iniciando OTIF...")
 
         pedidos = ler_arquivo(caminho_pedidos)
- 
+
         fatur = ler_arquivo(caminho_faturamentos)
 
         log(f"Pedidos lidos: {len(pedidos)} linhas")
