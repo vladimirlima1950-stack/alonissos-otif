@@ -21,6 +21,30 @@ def log(msg):
     except Exception as e:
         print(f"Falha ao escrever log: {e}")
 
+def ler_arquivo(caminho):
+    
+    if caminho.lower().endswith(".csv"):
+
+        return duckdb.read_csv(
+            caminho,
+            header=True,
+            sep=";",
+            auto_detect=True,
+            all_varchar=True
+        ).df()
+
+    elif caminho.lower().endswith((".xlsx", ".xls")):
+
+        return pd.read_excel(
+            caminho,
+            dtype=str
+        )
+
+    raise ValueError(
+        f"Formato não suportado: {caminho}"
+    )
+
+
 
 # ============================================================
 # 1) Validação dos CSVs
