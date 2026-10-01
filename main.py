@@ -71,14 +71,14 @@ async def upload_pedidos(file: UploadFile = File(...)):
             f.write(contents)
 
         if pedidos_path.lower().endswith(".csv"):
+
             ok_conv, msg_conv = converter_para_utf8(pedidos_path)
-        
-        
-        if not ok_conv:
-            return JSONResponse(
-                status_code=400,
-                content={"status": "erro", "mensagem": msg_conv}
-            )
+
+            if not ok_conv:
+                return JSONResponse(
+                    status_code=400,
+                    content={"status": "erro", "mensagem": msg_conv}
+                )
 
         ok, msg = validar_csv_pedidos(pedidos_path)
         if not ok:
@@ -116,11 +116,16 @@ async def upload_faturamentos(file: UploadFile = File(...)):
         with open(faturamentos_path, "wb") as f:
             f.write(contents)
 
-        ok_conv, msg_conv = converter_para_utf8(faturamentos_path)
-        
         if faturamentos_path.lower().endswith(".csv"):
+
             ok_conv, msg_conv = converter_para_utf8(faturamentos_path)
-        
+
+            if not ok_conv:
+                return JSONResponse(
+                    status_code=400,
+                    content={"status": "erro", "mensagem": msg_conv}
+                )
+                
         if not ok_conv:
             return JSONResponse(
                 status_code=400,
