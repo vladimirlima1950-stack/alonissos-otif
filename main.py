@@ -70,7 +70,10 @@ async def upload_pedidos(file: UploadFile = File(...)):
         with open(pedidos_path, "wb") as f:
             f.write(contents)
 
-        ok_conv, msg_conv = converter_para_utf8(pedidos_path)
+        if pedidos_path.lower().endswith(".csv"):
+            ok_conv, msg_conv = converter_para_utf8(pedidos_path)
+        
+        
         if not ok_conv:
             return JSONResponse(
                 status_code=400,
@@ -114,6 +117,10 @@ async def upload_faturamentos(file: UploadFile = File(...)):
             f.write(contents)
 
         ok_conv, msg_conv = converter_para_utf8(faturamentos_path)
+        
+        if faturamentos_path.lower().endswith(".csv"):
+            ok_conv, msg_conv = converter_para_utf8(faturamentos_path)
+        
         if not ok_conv:
             return JSONResponse(
                 status_code=400,
