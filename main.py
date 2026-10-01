@@ -124,6 +124,7 @@ async def upload_faturamentos(file: UploadFile = File(...)):
                 return JSONResponse(
                     status_code=400,
                     content={"status": "erro", "mensagem": msg_conv}
+                    
                 )
                 
         if not ok_conv:
