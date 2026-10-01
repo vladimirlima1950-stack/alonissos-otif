@@ -92,21 +92,9 @@ def processar_otif(caminho_pedidos: str, caminho_faturamentos: str):
 
         log("Iniciando OTIF...")
 
-        pedidos = duckdb.read_csv(
-            caminho_pedidos,
-            header=True,
-            sep=";",
-            auto_detect=True,
-            all_varchar=True
-        ).df()
-
-        fatur = duckdb.read_csv(
-            caminho_faturamentos,
-            header=True,
-            sep=";",
-            auto_detect=True,
-            all_varchar=True
-        ).df()
+        pedidos = ler_arquivo(caminho_pedidos)
+ 
+        fatur = ler_arquivo(caminho_faturamentos)
 
         log(f"Pedidos lidos: {len(pedidos)} linhas")
         log(f"Faturamentos lidos: {len(fatur)} linhas")
