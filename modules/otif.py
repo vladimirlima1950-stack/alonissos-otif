@@ -55,13 +55,7 @@ def validar_csv_pedidos(caminho_pedidos: str):
         return False, "Arquivo de pedidos não encontrado."
 
     try:
-        df = duckdb.read_csv(
-            caminho_pedidos,
-            header=True,
-            sep=";",
-            auto_detect=True,
-            all_varchar=True
-        ).df()
+        df = ler_arquivo(caminho_pedidos)
     except Exception as e:
         return False, f"Erro ao ler pedidos: {e}"
 
@@ -76,13 +70,7 @@ def validar_csv_faturamentos(caminho_faturamentos: str):
         return False, "Arquivo de faturamentos não encontrado."
 
     try:
-        df = duckdb.read_csv(
-            caminho_faturamentos,
-            header=True,
-            sep=";",
-            auto_detect=True,
-            all_varchar=True
-        ).df()
+        df = ler_arquivo(caminho_faturamentos)
     except Exception as e:
         return False, f"Erro ao ler faturamentos: {e}"
 
