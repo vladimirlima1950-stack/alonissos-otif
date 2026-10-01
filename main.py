@@ -120,18 +120,13 @@ async def upload_faturamentos(file: UploadFile = File(...)):
 
             ok_conv, msg_conv = converter_para_utf8(faturamentos_path)
 
+            
+                
             if not ok_conv:
                 return JSONResponse(
                     status_code=400,
                     content={"status": "erro", "mensagem": msg_conv}
-                    
                 )
-                
-        if not ok_conv:
-            return JSONResponse(
-                status_code=400,
-                content={"status": "erro", "mensagem": msg_conv}
-            )
 
         ok, msg = validar_csv_faturamentos(faturamentos_path)
         if not ok:
